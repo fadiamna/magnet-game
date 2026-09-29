@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnet Learning Game for Kids</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #87CEEB, #98FB98);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #FF6B6B;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            width: 25%;
+            transition: width 0.5s ease;
+        }
+        
+        .step {
+            display: none;
+            padding: 15px;
+        }
+        
+        .step.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .info {
+            background: #FFF3E0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #FF9800;
+            text-align: left;
+        }
+        
+        .score {
+            background: linear-gradient(135deg, #E8F5E8, #C8E6C9);
+            padding: 12px;
+            border-radius: 10px;
+            margin: 12px 0;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid #4CAF50;
+        }
+        
+        .question-container {
+            background: linear-gradient(135deg, #E1BEE7, #CE93D8);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 16px;
+        }
+        
+        .question-counter {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .answer {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            padding: 12px;
+            margin: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .answer:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        
+        .answer.correct {
+            background: #4CAF50;
+            color: white;
+            border-color: #45a049;
+            animation: correctBounce 0.6s ease;
+        }
+        
+        .answer.wrong {
+            background: #F44336;
+            color: white;
+            border-color: #d32f2f;
+            animation: wrongShake 0.5s ease;
+        }
+        
+        @keyframes correctBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+        
+        .feedback {
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .final-score {
+            background: linear-gradient(135deg, #FFE0B2, #FFCC02);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 3px solid #FF9800;
+        }
+        
+        .achievement {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            animation: pulseGlow 2s infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.8); }
+        }
+        
+        .metal-list {
+            background: #E8F5E8;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧲 Amazing Magnet Learning Game 🧲</h1>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+        
+        <!-- Step 1: Welcome -->
+        <div class="step active" id="step1">
+            <h2>🌟 Welcome to the World of Magnets! 🌟</h2>
+            <p>Do you want to become a magnet expert?</p>
+            <div class="info">
+                <p><strong>🎯 You will learn:</strong></p>
+                <p>• What magnets are and how they work</p>
+                <p>• Which metals are attracted to magnets</p>
+                <p>• How we use magnets in daily life</p>
+                <p>• Laws of attraction and repulsion</p>
+            </div>
+            <button onclick="nextStep()">Start Learning Journey! 🚀</button>
+        </div>
+        
+        <!-- Step 2: Learning -->
+        <div class="step" id="step2">
+            <h2>📚 Discover Magnets</h2>
+            
+            <div class="info">
+                <h3>🧲 What is a Magnet?</h3>
+                <p>A magnet is an object with special power to attract <strong>only certain types of metals</strong>, not all of them! It has two poles: <span style="color: red;">North (N)</span> and <span style="color: blue;">South (S)</span></p>
+            </div>
+            
+            <div class="metal-list">
+                <h4>🔩 Metals attracted to magnets:</h4>
+                <p><strong>• Iron</strong> (like nails and keys)</p>
+                <p><strong>• Steel</strong> (like kitchen utensils)</p>
+                <p><strong>• Nickel</strong> (in some coins)</p>
+                <p><strong>• Cobalt</strong> (rare metal)</p>
+            </div>
+            
+            <div class="info">
+                <h4>❌ Metals NOT attracted to magnets:</h4>
+                <p>Gold, Silver, Copper, Aluminum, Lead</p>
+            </div>
+            
+            <div class="info">
+                <h3>⚡ The Golden Rule:</h3>
+                <p><strong>Opposite poles attract each other</strong> ❤️<br>
+                <strong>Like poles repel each other</strong> ⚡</p>
+            </div>
+            
+            <div class="info">
+                <h3>💡 Uses of Magnets:</h3>
+                <p>Compass 🧭 • Refrigerator doors 🏠 • Smartphones 📱<br>
+                Magnetic trains 🚄 • Computers 💻 • Electric generators ⚡</p>
+            </div>
+            
+            <div class="controls">
+                <button class="nav-btn" onclick="prevStep()">← Previous</button>
+                <button class="nav-btn" onclick="nextStep()">Start Quiz →</button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Quiz -->
+        <div class="step" id="step3">
+            <h2>🎯 Knowledge Quiz</h2>
+            
+            <div class="score">
+                Score: <span id="points">0</span> out of 100
+            </div>
+            
+            <div class="question-counter">
+                Question <span id="qNum">1</span> of <span id="totalQ">10</span>
+            </div>
+            
+            <div class="question-container">
+                <div id="questionText">Question will appear here</div>
+            </div>
+            
+            <div id="answers">
+                <!-- Answers will be added here -->
+            </div>
+            
+            <div class="feedback" id="feedback">
+                <!-- Explanation will appear here -->
+            </div>
+            
+            <div class="controls">
+                <button class="nav-btn" onclick="prevStep()">← Previous</button>
+                <button id="nextBtn" onclick="nextQuestion()" disabled>Next Question →</button>
+            </div>
+        </div>
+        
+        <!-- Step 4: Results -->
+        <div class="step" id="step4">
+            <h2>🏆 Final Results 🏆</h2>
+            
+            <div class="final-score">
+                <h3>Your Score: <span id="finalPoints">0</span> out of 100 points! 🌟</h3>
+                <p><span id="percentage">0</span>%</p>
+                <div id="grade"></div>
+            </div>
+            
+            <div class="achievement" id="achievement">
+                <h3 id="achievementTitle">🎖️ Great Achievement!</h3>
+                <p id="achievementDesc">You completed all questions successfully!</p>
+            </div>
+            
+            <div class="info">
+                <h3>🎓 What you learned today:</h3>
+                <p>✓ Magnets attract only specific metals<br>
+                ✓ Iron, steel, and nickel are magnetic metals<br>
+                ✓ Opposite poles attract, like poles repel<br>
+                ✓ Magnets have many uses in our lives<br>
+                ✓ Not every metal is attracted to magnets</p>
+            </div>
+            
+            <div class="controls">
+                <button class="nav-btn" onclick="goToStep(2)">← Review Lesson</button>
+                <button class="nav-btn" onclick="restart()">🎮 Start Over</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let currentStep = 1;
+        let currentQuestion = 0;
+        let score = 0;
+        let questionsAnswered = 0;
+
+        // Diverse questions (10 questions)
+        const questions = [
+            {
+                q: "Which of these metals is strongly attracted to magnets?",
+                options: ["🔧 Iron", "🥇 Gold", "🥈 Silver", "🔶 Copper"],
+                correct: 0,
+                explanation: "Iron is one of the strongest magnetic metals and is powerfully attracted to magnets!"
+            },
+            {
+                q: "How many poles does a magnet have?",
+                options: ["One pole", "Two poles", "Three poles", "Four poles"],
+                correct: 1,
+                explanation: "Every magnet has exactly two poles: North (N) and South (S), and they cannot be separated!"
+            },
+            {
+                q: "What happens when you bring two north poles close together?",
+                options: ["They attract strongly", "They repel and move apart", "Nothing happens", "The magnet breaks"],
+                correct: 1,
+                explanation: "Like poles (north with north) always repel each other!"
+            },
+            {
+                q: "Which of these materials is NOT attracted to magnets?",
+                options: ["🔩 Iron nail", "🪙 Nickel coin", "🍽️ Steel spoon", "🥤 Aluminum can"],
+                correct: 3,
+                explanation: "Aluminum is a metal but it's non-magnetic, so it's not attracted to magnets!"
+            },
+            {
+                q: "In which device do we use magnets to find directions?",
+                options: ["🧭 Compass", "📱 Phone", "⌚ Watch", "📺 TV"],
+                correct: 0,
+                explanation: "A compass contains a magnetic needle that always points toward magnetic north!"
+            },
+            {
+                q: "Why do magnets stick to refrigerator doors?",
+                options: ["The door is plastic", "The door is made of iron/steel", "The door is wooden", "The door is glass"],
+                correct: 1,
+                explanation: "Refrigerator doors are made of steel, which is a magnetic metal!"
+            },
+            {
+                q: "If you cut a magnet in half, what happens?",
+                options: ["I get one pole", "It loses magnetic power", "I get two small magnets", "It breaks permanently"],
+                correct: 2,
+                explanation: "Each piece becomes a complete magnet with both north and south poles!"
+            },
+            {
+                q: "Which of these things contains magnets?",
+                options: ["📱 Smartphone", "🪵 Wood", "📄 Paper", "🧼 Soap"],
+                correct: 0,
+                explanation: "Smartphones contain small magnets in speakers and vibration motors!"
+            },
+            {
+                q: "What is the world's strongest natural magnet?",
+                options: ["🧲 Lodestone", "🪨 Regular rocks", "🌍 Planet Earth", "🌙 The Moon"],
+                correct: 2,
+                explanation: "Planet Earth itself is a giant magnet! That's why compasses work!"
+            },
+            {
+                q: "Why isn't gold attracted to magnets?",
+                options: ["Because it's expensive", "Because it's a non-magnetic metal", "Because it's yellow", "Because it's very heavy"],
+                correct: 1,
+                explanation: "Gold, silver, and copper are non-magnetic metals. Only iron, nickel, and cobalt are magnetic!"
+            }
+        ];
+
+        // Play sound effects
+        function playSound(type) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (type === 'correct') {
+                    // Success sound: ascending tones
+                    playTone(audioContext, 523.25, 0.2); // C
+                    setTimeout(() => playTone(audioContext, 659.25, 0.2), 200); // E
+                    setTimeout(() => playTone(audioContext, 783.99, 0.4), 400); // G
+                } else if (type === 'wrong') {
+                    // Error sound: low tone
+                    playTone(audioContext, 300, 0.3);
+                    setTimeout(() => playTone(audioContext, 250, 0.3), 300);
+                } else if (type === 'complete') {
+                    // Completion sound: celebratory tune
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((note, index) => {
+                        setTimeout(() => playTone(audioContext, note, 0.3), index * 150);
+                    });
+                }
+            } catch (error) {
+                console.log('Audio not available in this browser');
+            }
+        }
+
+        function playTone(audioContext, frequency, duration) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = (currentStep / 4) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        // Move to next step
+        function nextStep() {
+            if (currentStep < 4) {
+                goToStep(currentStep + 1);
+            }
+        }
+
+        // Move to previous step
+        function prevStep() {
+            if (currentStep > 1) {
+                goToStep(currentStep - 1);
+            }
+        }
+
+        // Go to specific step
+        function goToStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            currentStep = step;
+            updateProgress();
+            
+            if (step === 3) {
+                setupQuestion();
+                document.getElementById('totalQ').textContent = questions.length;
+            }
+            if (step === 4) showFinalResults();
+        }
+
+        // Setup question
+        function setupQuestion() {
+            if (currentQuestion >= questions.length) {
+                goToStep(4);
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            document.getElementById('qNum').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = q.q;
+            document.getElementById('points').textContent = score;
+            
+            // Create answers
+            const answersContainer = document.getElementById('answers');
+            answersContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'answer';
+                answerDiv.textContent = option;
+                answerDiv.onclick = () => checkAnswer(index, answerDiv);
+                answersContainer.appendChild(answerDiv);
+            });
+            
+            // Hide feedback
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').disabled = true;
+        }
+
+        // Check answer
+        function checkAnswer(selected, element) {
+            const q = questions[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            
+            // Disable all answers
+            document.querySelectorAll('.answer').forEach(a => a.onclick = null);
+            
+            questionsAnswered++;
+            
+            if (selected === q.correct) {
+                element.classList.add('correct');
+                feedback.innerHTML = `✅ <strong>Correct Answer!</strong><br>${q.explanation}`;
+                feedback.style.background = '#4CAF50';
+                feedback.style.color = 'white';
+                score += 10;
+                playSound('correct');
+            } else {
+                element.classList.add('wrong');
+                document.querySelectorAll('.answer')[q.correct].classList.add('correct');
+                feedback.innerHTML = `❌ <strong>Wrong Answer!</strong><br>${q.explanation}`;
+                feedback.style.background = '#F44336';
+                feedback.style.color = 'white';
+                playSound('wrong');
+            }
+            
+            feedback.style.display = 'block';
+            document.getElementById('points').textContent = score;
+            
+            setTimeout(() => {
+                document.getElementById('nextBtn').disabled = false;
+                if (currentQuestion === questions.length - 1) {
+                    document.getElementById('nextBtn').textContent = 'Show Results 🏆';
+                    document.getElementById('nextBtn').onclick = () => goToStep(4);
+                }
+            }, 2000);
+        }
+
+        // Next question
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                setupQuestion();
+            }
+        }
+
+        // Show final results
+        function showFinalResults() {
+            const finalScore = score;
+            const percentage = Math.round((finalScore / 100) * 100);
+            
+            document.getElementById('finalPoints').textContent = finalScore;
+            document.getElementById('percentage').textContent = percentage;
+            
+            const gradeElement = document.getElementById('grade');
+            const achievementTitle = document.getElementById('achievementTitle');
+            const achievementDesc = document.getElementById('achievementDesc');
+            
+            if (percentage >= 90) {
+                gradeElement.innerHTML = '🌟 <strong style="color: #FFD700;">Excellent</strong> - True Magnet Scientist!';
+                achievementTitle.textContent = '🏆 Magnet Genius!';
+                achievementDesc.textContent = 'Perfect score! You understand magnets amazingly well!';
+            } else if (percentage >= 80) {
+                gradeElement.innerHTML = '⭐ <strong style="color: #4CAF50;">Great</strong> - Strong magnet knowledge!';
+                achievementTitle.textContent = '🎖️ Magnet Expert!';
+                achievementDesc.textContent = 'Excellent performance! You have deep understanding of magnets!';
+            } else if (percentage >= 70) {
+                gradeElement.innerHTML = '👍 <strong style="color: #2196F3;">Very Good</strong> - Good understanding of magnets!';
+                achievementTitle.textContent = '📚 Outstanding Student!';
+                achievementDesc.textContent = 'Good job! You learned a lot about magnets!';
+            } else if (percentage >= 60) {
+                gradeElement.innerHTML = '😊 <strong style="color: #FF9800;">Good</strong> - Good grasp of basics!';
+                achievementTitle.textContent = '💪 Strong Start!';
+                achievementDesc.textContent = 'You have good basics, keep learning!';
+            } else {
+                gradeElement.innerHTML = '📖 <strong style="color: #9C27B0;">Needs Improvement</strong> - Review the lesson again!';
+                achievementTitle.textContent = '🎯 Room for Growth!';
+                achievementDesc.textContent = "Don't give up! Review the lesson and try again!";
+            }
+            
+            // Play completion sound
+            playSound('complete');
+        }
+
+        // Restart game
+        function restart() {
+            currentStep = 1;
+            currentQuestion = 0;
+            score = 0;
+            questionsAnswered = 0;
+            goToStep(1);
+        }
+
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            console.log('🧲 Magnet Learning Game Ready!');
+        });
+    </script>
+</body>
+</html>
